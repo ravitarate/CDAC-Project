@@ -91,32 +91,49 @@ const validatePhone = (phone) => {
 
   if (field === "name") {
     const isValid = validateName(value);
+
+    if (!isValid) {
     updatedErrors[index] = {
       ...(updatedErrors[index] || {}),
-      name: isValid ? null : "Name must contain only letters and spaces",
+      name: "Name must contain only letters and spaces",
     };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].name;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
+    }
+  }
   }
 
 
   if (field === "email") {
-    if (!validateEmail(value)) {
-      updatedErrors[index] = { ...(updatedErrors[index] || {}), email: "Invalid email format" };
-    } else {
-      if (updatedErrors[index]) {
-        delete updatedErrors[index].email;
-        if (Object.keys(updatedErrors[index]).length === 0) {
-          updatedErrors[index] = null;
-        }
-      }
+const isValid = validateEmail(value);
+    if (!isValid) {
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      email: "Invalid email format",
+    };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].email;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
     }
+  }
   }
 
   if (field === "phone") {
   const isValid = validatePhone(value);
-  updatedErrors[index] = {
-    ...(updatedErrors[index] || {}),
-    phone: isValid ? null : "Phone number must be 10 digits",
-  };
+  if (!isValid) {
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      phone: "Phone number must be 10 digits",
+    };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].phone;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
+    }
+  }
 }
   setErrors(updatedErrors);
 };
@@ -127,7 +144,7 @@ const validatePhone = (phone) => {
       return;
     }
 
-    const hasErrors = errors.some((err) => Object.keys(err).length > 0);
+    const hasErrors = errors.some((err) => err && Object.keys(err).length > 0);
     if (hasErrors) {
       console.log("Form has errors");
       return;
