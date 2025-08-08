@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         policy => policy
-            .WithOrigins("http://localhost:3000", "http://localhost:5000", "https://mobility-network.onrender.com/") // add React and Swagger origins
+            .WithOrigins("http://localhost:3000", "http://localhost:5000", "https://mobility-network.onrender.com") // add React and Swagger origins
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
