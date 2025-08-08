@@ -11,13 +11,28 @@ import { BUS_SERVICE_API_BASE_URL } from "../BaseURLs/BaseURLs";
 function ViewSeats() {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [passengerInfo, setPassengerInfo] = useState([]);
+  const [passengerInfo, setPassengerInfo] = useState([{ name: "",email: "",phone:"" },]);
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("tripId");
     const location = useLocation();
-
-
+const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
+
+const validateName = (name) => {
+  const re = /^[A-Za-z\s]+$/;
+  return re.test(name.trim());
+};
+
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(String(email).toLowerCase());
+};
+
+const validatePhone = (phone) => {
+  const re = /^[0-9]{10}$/;
+  return re.test(phone) && !phone.startsWith("00");
+};
+
 
     useEffect(() => {
       if (!sessionStorage.getItem("userName")) {
@@ -66,14 +81,55 @@ function ViewSeats() {
     setPassengerInfo(selectedSeats.map(() => ({ name: "", email: "", phone: "" })));
   }, [selectedSeats]);
 
-  const handlePassengerInfoChange = (index, field, value) => {
-    const updatedInfo = [...passengerInfo];
-    updatedInfo[index][field] = value;
-    setPassengerInfo(updatedInfo);
+ const handlePassengerInfoChange = (index, field, value) => {
+  const updatedPassengerInfo = [...passengerInfo];
+  updatedPassengerInfo[index][field] = value;
+  setPassengerInfo(updatedPassengerInfo);
+
+  // Handle validation
+  const updatedErrors = [...errors];
+
+  if (field === "name") {
+    const isValid = validateName(value);
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      name: isValid ? null : "Name must contain only letters and spaces",
+    };
+  }
+
+
+  if (field === "email") {
+    if (!validateEmail(value)) {
+      updatedErrors[index] = { ...(updatedErrors[index] || {}), email: "Invalid email format" };
+    } else {
+      if (updatedErrors[index]) {
+        delete updatedErrors[index].email;
+        if (Object.keys(updatedErrors[index]).length === 0) {
+          updatedErrors[index] = null;
+        }
+      }
+    }
+  }
+
+  if (field === "phone") {
+  const isValid = validatePhone(value);
+  updatedErrors[index] = {
+    ...(updatedErrors[index] || {}),
+    phone: isValid ? null : "Phone number must be 10 digits",
   };
+}
+  setErrors(updatedErrors);
+};
+
   const handleSubmit = () => {
     if (passengerInfo.some((info) => !info.name || !info.email || !info.phone)) {
       toast.error("Please fill out all passenger information!");
+      return;
+    }
+
+    const hasErrors = errors.some((err) => Object.keys(err).length > 0);
+    if (hasErrors) {
+      console.log("Form has errors");
       return;
     }
   
@@ -88,6 +144,7 @@ function ViewSeats() {
     };
   
     // Navigate to payment page with bookingData as state
+    setErrors([]);
     navigate("/customer/payement", { state: bookingData });
   };
   
@@ -130,29 +187,43 @@ function ViewSeats() {
                   <tr key={seat.seatNumber}>
                     <td>{seat.seatNumber}</td>
                     <td>
-                      <input
-                        type="text"
-                        value={passengerInfo[index]?.name || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "name", e.target.value)}
-                        placeholder="Enter name"
-                      />
-                    </td>
+                    <input
+                      type="text"
+                      value={passengerInfo[index]?.name || ""}
+                      onChange={(e) => handlePassengerInfoChange(index, "name", e.target.value)}
+                      placeholder="Enter name"
+                      style={{ borderColor: errors[index]?.name ? "red" : "" }}
+                    />
+                    {errors[index]?.name && (
+                      <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].name}</div>
+                    )}
+                  </td>
+
                     <td>
-                      <input
-                        type="email"
-                        value={passengerInfo[index]?.email || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "email", e.target.value)}
-                        placeholder="Enter email"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="tel"
-                        value={passengerInfo[index]?.phone || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "phone", e.target.value)}
-                        placeholder="Enter phone"
-                      />
-                    </td>
+          <input
+            type="email"
+                value={passengerInfo[index]?.email || ""}
+                  onChange={(e) => handlePassengerInfoChange(index, "email", e.target.value)}
+                  placeholder="Enter email"
+                   style={{ borderColor: errors[index]?.email ? "red" : "" }}
+                   />
+                    {errors[index]?.email && (
+                  <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].email}</div>
+                  )}
+                </td>
+                <td>
+                  <input
+                    type="tel"
+                    value={passengerInfo[index]?.phone || ""}
+                    onChange={(e) => handlePassengerInfoChange(index, "phone", e.target.value)}
+                    placeholder="Enter phone"
+                    style={{ borderColor: errors[index]?.phone ? "red" : "" }}
+                  />
+                  {errors[index]?.phone && (
+                    <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].phone}</div>
+                  )}
+                </td>
+
                   </tr>
                 ))}
               </tbody>

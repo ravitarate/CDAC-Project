@@ -9,7 +9,7 @@ function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Manage dropdown state
   const navigate = useNavigate(); // To navigate programmatically
   const userId = sessionStorage.getItem("userId");
-
+  const userName = sessionStorage.getItem("userName");
 
   // Handle mouse enter and leave to show/hide the dropdown
   const handleMouseEnter = () => {
@@ -81,7 +81,7 @@ function Navbar() {
                 }}
               >
                 <BsPersonCircle size={30} style={{ marginRight: "8px" }} />
-                {userId ? "Profile" : "Sign In"}
+                {userId ? userName || "Profile" : "Sign In"}
               </button>
 
               {userId && isDropdownOpen && (
