@@ -34,10 +34,11 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var mysqlVersionString = builder.Configuration["Database:MySqlVersion"] ?? "8.0.0";
 //  Register DbContext with Pomelo MySQL provider
 builder.Services.AddDbContext<BusContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 33)) // Match with your MySQL version
+        new MySqlServerVersion(new Version(mysqlVersionString)) // Match with your MySQL version
     ));
 
 var jwtSection = builder.Configuration.GetSection("JWT");
