@@ -1,1 +1,1 @@
-export const BUS_SERVICE_API_BASE_URL = "https://cdac-project-3t6q.onrender.com";
+export const BUS_SERVICE_API_BASE_URL = "http://localhost:5050";
