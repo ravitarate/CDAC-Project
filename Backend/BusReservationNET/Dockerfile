@@ -1,4 +1,13 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+
+# Install Microsoft TrueType fonts for PdfSharp
+RUN apt-get update && apt-get install -y \
+    fontconfig \
+    ttf-mscorefonts-installer \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
 WORKDIR /app
 EXPOSE 80
 
