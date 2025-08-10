@@ -16,7 +16,8 @@ namespace BusReservationNET.Services
             using var document = new PdfDocument();
             var page = document.AddPage();
             var gfx = XGraphics.FromPdfPage(page);
-            var font = new XFont("Verdana", 12);
+            //var font = new XFont("Verdana", 12);
+            var font = new XFont("Arial", 12, XFontStyle.Regular);
             double yPoint = 40;
 
             gfx.DrawString("------------ Booking Details ------------", font, XBrushes.Black,
