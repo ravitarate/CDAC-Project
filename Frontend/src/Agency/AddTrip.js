@@ -102,7 +102,9 @@ function AddTrip() {
 
       tripDate: Yup.date()
         .required("Trip date is required")
-        .min(new Date(), "Trip date cannot be in the past"),
+        .min(new Date(), "Trip date cannot be in the past")
+        .max(new Date(new Date().setMonth(new Date().getMonth() + 6)),
+          "Trip date cannot be more than 6 months from today"),
 
       departureTime: Yup.string()
         .required("Departure time is required")
@@ -117,14 +119,7 @@ function AddTrip() {
           /^([01]\d|2[0-3]):([0-5]\d)$/,
           "Arrival time must be in HH:mm (24-hour) format"
         )
-        .test(
-          "is-after-departure",
-          "Arrival time must be after departure time",
-          function (value) {
-            const { departureTime } = this.parent;
-            return !departureTime || value > departureTime;
-          }
-        ),
+       ,
 
       price: Yup.number()
         .typeError("Ticket price must be a valid number")
@@ -300,7 +295,7 @@ function AddTrip() {
             <table className="table table-striped table-hover">
               <thead className="table-dark">
                 <tr>
-                  <th>Id</th>
+                  <th>Trip Id</th>
                   <th>Bus</th>
                   <th>Start Location</th>
                   <th>End Location</th>

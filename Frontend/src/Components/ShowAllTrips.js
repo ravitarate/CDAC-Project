@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useLocation, useNavigate } from 'react-router-dom';
 import "react-toastify/dist/ReactToastify.css";
 import './ShowAllTrips.css';
-import Navbar from './Navbar';
+import Navbar from '../Components/Navbar';
 import { BUS_SERVICE_API_BASE_URL } from '../BaseURLs/BaseURLs';
 
 function ShowAllTrips() {

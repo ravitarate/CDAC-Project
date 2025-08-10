@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { MdAirlineSeatReclineNormal } from "react-icons/md";
@@ -18,6 +19,20 @@ function ViewSeats() {
 
 
     const navigate = useNavigate();
+    const passengerSchema = Yup.array().of(
+  Yup.object().shape({
+    name: Yup.string()
+      .required("Name is required")
+      .matches(/^[A-Za-z\s]+$/, "Name must contain only letters")
+      .min(2, "Name must be at least 2 characters"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Invalid email format"),
+    phone: Yup.string()
+      .required("Phone is required")
+      .matches(/^[0-9]{10}$/, "Phone must be 10 digits"),
+  })
+);
 
     useEffect(() => {
       if (!sessionStorage.getItem("userName")) {
@@ -71,25 +86,37 @@ function ViewSeats() {
     updatedInfo[index][field] = value;
     setPassengerInfo(updatedInfo);
   };
-  const handleSubmit = () => {
-    if (passengerInfo.some((info) => !info.name || !info.email || !info.phone)) {
-      toast.error("Please fill out all passenger information!");
-      return;
-    }
-  
-    const totalPrice = selectedSeats.length > 0 ? selectedSeats.length * selectedSeats[0].trip.price : 0;
-  
+const handleSubmit = async () => {
+  try {
+    await passengerSchema.validate(passengerInfo, { abortEarly: false });
+
+    const totalPrice =
+      selectedSeats.length > 0
+        ? selectedSeats.length * selectedSeats[0].trip.price
+        : 0;
+
     const bookingData = {
       tripId,
-      busId: seats[0]?.bus.busId, // Assuming all seats belong to the same bus
+      busId: seats[0]?.bus.busId,
       selectedSeats: selectedSeats.map((seat) => seat.seatNumber),
       passengerInfo,
-      totalPrice, // Include total price
+      totalPrice,
     };
-  
-    // Navigate to payment page with bookingData as state
+
     navigate("/customer/payement", { state: bookingData });
-  };
+  } catch (err) {
+    if (err.inner && err.inner.length > 0) {
+      err.inner.forEach((validationError, index) => {
+        toast.error(
+          `Passenger ${index + 1}: ${validationError.message}`
+        );
+      });
+    } else {
+      toast.error("Validation failed!");
+    }
+  }
+};
+
   
 
   return (

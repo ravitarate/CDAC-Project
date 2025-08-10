@@ -109,7 +109,7 @@ function Footer() {
 
         {/* Copyright Section */}
         <div className="text-center p-3" style={{ backgroundColor: '#63a0bc' }}>
-        © 2024 Copyright: Book-Bus
+        © 2025 Copyright: Book-Bus
         </div>
     </footer>
   );

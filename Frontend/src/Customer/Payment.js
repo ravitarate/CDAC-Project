@@ -105,7 +105,7 @@ export default function PaymentForm() {
       if (response.status === 200) {
         toast.success("Booking confirmed!", {
           position: "top-right",
-          autoClose: 1500,
+          autoClose: 1000,
         });
 
         setTimeout(() => {

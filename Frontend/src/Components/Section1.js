@@ -35,6 +35,7 @@ function Section1() {
           value={tripDate}
           onChange={(e) => setDate(e.target.value)}
           className="search-input"
+          min={new Date().toISOString().split("T")[0]}
         />
         <button onClick={handleSearch} className="search-button">
           Search

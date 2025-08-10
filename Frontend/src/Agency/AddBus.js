@@ -173,6 +173,7 @@ function AddBus() {
             <table className="table table-striped table-hover">
               <thead className="table-dark">
                 <tr>
+                  <th>Bus ID</th>
                   <th>Bus Name</th>
                   <th>Bus Number</th>
                   <th>Driver Name</th>
@@ -191,6 +192,7 @@ function AddBus() {
                   })
                   .map((bus) => (
                     <tr key={bus.busId}>
+                      <td>{bus.busId}</td>
                       <td>{bus.busName}</td>
                       <td>{bus.busNumber}</td>
                       <td>{bus.driverName}</td>
