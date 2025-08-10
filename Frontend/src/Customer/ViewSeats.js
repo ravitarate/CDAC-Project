@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import * as Yup from "yup";
 import { toast, ToastContainer } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { MdAirlineSeatReclineNormal } from "react-icons/md";
@@ -82,14 +81,72 @@ const validatePhone = (phone) => {
     setPassengerInfo(selectedSeats.map(() => ({ name: "", email: "", phone: "" })));
   }, [selectedSeats]);
 
-  const handlePassengerInfoChange = (index, field, value) => {
-    const updatedInfo = [...passengerInfo];
-    updatedInfo[index][field] = value;
-    setPassengerInfo(updatedInfo);
-  };
+ const handlePassengerInfoChange = (index, field, value) => {
+  const updatedPassengerInfo = [...passengerInfo];
+  updatedPassengerInfo[index][field] = value;
+  setPassengerInfo(updatedPassengerInfo);
+
+  // Handle validation
+  const updatedErrors = [...errors];
+
+  if (field === "name") {
+    const isValid = validateName(value);
+
+    if (!isValid) {
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      name: "Name must contain only letters and spaces",
+    };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].name;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
+    }
+  }
+  }
+
+
+  if (field === "email") {
+const isValid = validateEmail(value);
+    if (!isValid) {
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      email: "Invalid email format",
+    };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].email;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
+    }
+  }
+  }
+
+  if (field === "phone") {
+  const isValid = validatePhone(value);
+  if (!isValid) {
+    updatedErrors[index] = {
+      ...(updatedErrors[index] || {}),
+      phone: "Phone number must be 10 digits",
+    };
+  } else if (updatedErrors[index]) {
+    delete updatedErrors[index].phone;
+    if (Object.keys(updatedErrors[index]).length === 0) {
+      updatedErrors[index] = null;
+    }
+  }
+}
+  setErrors(updatedErrors);
+};
+
   const handleSubmit = () => {
     if (passengerInfo.some((info) => !info.name || !info.email || !info.phone)) {
       toast.error("Please fill out all passenger information!");
+      return;
+    }
+
+    const hasErrors = errors.some((err) => err && Object.keys(err).length > 0);
+    if (hasErrors) {
+      console.log("Form has errors");
       return;
     }
   
@@ -97,27 +154,16 @@ const validatePhone = (phone) => {
   
     const bookingData = {
       tripId,
-      busId: seats[0]?.bus.busId,
+      busId: seats[0]?.bus.busId, // Assuming all seats belong to the same bus
       selectedSeats: selectedSeats.map((seat) => seat.seatNumber),
       passengerInfo,
-      totalPrice,
+      totalPrice, // Include total price
     };
   
     // Navigate to payment page with bookingData as state
+    setErrors([]);
     navigate("/customer/payement", { state: bookingData });
-  } catch (err) {
-    if (err.inner && err.inner.length > 0) {
-      err.inner.forEach((validationError, index) => {
-        toast.error(
-          `Passenger ${index + 1}: ${validationError.message}`
-        );
-      });
-    } else {
-      toast.error("Validation failed!");
-    }
-  }
-};
-
+  };
   
 
   return (
