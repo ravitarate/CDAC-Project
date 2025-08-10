@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         policy => policy
-            .WithOrigins("http://localhost:3000", "http://localhost:5000") // add React and Swagger origins
+            .WithOrigins("http://localhost:3000", "http://localhost:5000", "https://mobility-network.onrender.com") // add React and Swagger origins
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
@@ -34,10 +34,11 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var mysqlVersionString = builder.Configuration["Database:MySqlVersion"] ?? "8.0.0";
 //  Register DbContext with Pomelo MySQL provider
 builder.Services.AddDbContext<BusContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 42)) // Match with your MySQL version
+        new MySqlServerVersion(new Version(mysqlVersionString)) // Match with your MySQL version
     ));
 
 var jwtSection = builder.Configuration.GetSection("JWT");
@@ -98,11 +99,8 @@ builder.Services.AddHostedService<DataSeeder>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigins"); 

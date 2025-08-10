@@ -12,27 +12,28 @@ import { BUS_SERVICE_API_BASE_URL } from "../BaseURLs/BaseURLs";
 function ViewSeats() {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [passengerInfo, setPassengerInfo] = useState([]);
+  const [passengerInfo, setPassengerInfo] = useState([{ name: "",email: "",phone:"" },]);
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("tripId");
     const location = useLocation();
-
-
+const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
-    const passengerSchema = Yup.array().of(
-  Yup.object().shape({
-    name: Yup.string()
-      .required("Name is required")
-      .matches(/^[A-Za-z\s]+$/, "Name must contain only letters")
-      .min(2, "Name must be at least 2 characters"),
-    email: Yup.string()
-      .required("Email is required")
-      .email("Invalid email format"),
-    phone: Yup.string()
-      .required("Phone is required")
-      .matches(/^[0-9]{10}$/, "Phone must be 10 digits"),
-  })
-);
+
+const validateName = (name) => {
+  const re = /^[A-Za-z\s]+$/;
+  return re.test(name.trim());
+};
+
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(String(email).toLowerCase());
+};
+
+const validatePhone = (phone) => {
+  const re = /^[0-9]{10}$/;
+  return re.test(phone) && !phone.startsWith("00");
+};
+
 
     useEffect(() => {
       if (!sessionStorage.getItem("userName")) {
@@ -86,15 +87,14 @@ function ViewSeats() {
     updatedInfo[index][field] = value;
     setPassengerInfo(updatedInfo);
   };
-const handleSubmit = async () => {
-  try {
-    await passengerSchema.validate(passengerInfo, { abortEarly: false });
-
-    const totalPrice =
-      selectedSeats.length > 0
-        ? selectedSeats.length * selectedSeats[0].trip.price
-        : 0;
-
+  const handleSubmit = () => {
+    if (passengerInfo.some((info) => !info.name || !info.email || !info.phone)) {
+      toast.error("Please fill out all passenger information!");
+      return;
+    }
+  
+    const totalPrice = selectedSeats.length > 0 ? selectedSeats.length * selectedSeats[0].trip.price : 0;
+  
     const bookingData = {
       tripId,
       busId: seats[0]?.bus.busId,
@@ -102,7 +102,8 @@ const handleSubmit = async () => {
       passengerInfo,
       totalPrice,
     };
-
+  
+    // Navigate to payment page with bookingData as state
     navigate("/customer/payement", { state: bookingData });
   } catch (err) {
     if (err.inner && err.inner.length > 0) {
@@ -157,29 +158,43 @@ const handleSubmit = async () => {
                   <tr key={seat.seatNumber}>
                     <td>{seat.seatNumber}</td>
                     <td>
-                      <input
-                        type="text"
-                        value={passengerInfo[index]?.name || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "name", e.target.value)}
-                        placeholder="Enter name"
-                      />
-                    </td>
+                    <input
+                      type="text"
+                      value={passengerInfo[index]?.name || ""}
+                      onChange={(e) => handlePassengerInfoChange(index, "name", e.target.value)}
+                      placeholder="Enter name"
+                      style={{ borderColor: errors[index]?.name ? "red" : "" }}
+                    />
+                    {errors[index]?.name && (
+                      <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].name}</div>
+                    )}
+                  </td>
+
                     <td>
-                      <input
-                        type="email"
-                        value={passengerInfo[index]?.email || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "email", e.target.value)}
-                        placeholder="Enter email"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="tel"
-                        value={passengerInfo[index]?.phone || ""}
-                        onChange={(e) => handlePassengerInfoChange(index, "phone", e.target.value)}
-                        placeholder="Enter phone"
-                      />
-                    </td>
+          <input
+            type="email"
+                value={passengerInfo[index]?.email || ""}
+                  onChange={(e) => handlePassengerInfoChange(index, "email", e.target.value)}
+                  placeholder="Enter email"
+                   style={{ borderColor: errors[index]?.email ? "red" : "" }}
+                   />
+                    {errors[index]?.email && (
+                  <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].email}</div>
+                  )}
+                </td>
+                <td>
+                  <input
+                    type="tel"
+                    value={passengerInfo[index]?.phone || ""}
+                    onChange={(e) => handlePassengerInfoChange(index, "phone", e.target.value)}
+                    placeholder="Enter phone"
+                    style={{ borderColor: errors[index]?.phone ? "red" : "" }}
+                  />
+                  {errors[index]?.phone && (
+                    <div style={{ color: "red", fontSize: "0.8em" }}>{errors[index].phone}</div>
+                  )}
+                </td>
+
                   </tr>
                 ))}
               </tbody>
