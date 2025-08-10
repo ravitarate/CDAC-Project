@@ -1,12 +1,11 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
-# Install Microsoft TrueType fonts for PdfSharp
+# Install Liberation fonts and fontconfig (no license prompt)
 RUN apt-get update && apt-get install -y \
     fontconfig \
-    ttf-mscorefonts-installer \
+    fonts-liberation \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 
 WORKDIR /app
 EXPOSE 80
