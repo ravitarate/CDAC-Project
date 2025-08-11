@@ -21,13 +21,27 @@ function Register() {
       password: "",
     },
     validationSchema: Yup.object({
-      username: Yup.string().required("Name is required"),
+      username: Yup.string()
+    .required('Name is required')
+    .matches(/^[A-Za-z\s]+$/, 'Only letters and spaces are allowed')
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be at most 50 characters'),
+
       contact: Yup.string()
-        .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits")
-        .required("Mobile number is required"),
-      email: Yup.string().email("Invalid email").required("Email is required"),
-      address: Yup.string().required("Address is required"),
-      password: Yup.string().required("Password is required"),
+    .required('Phone number is required')
+    .matches(/^[1-9][0-9]{9}$/, 'Phone number must be 10 digits and not start with 0')
+    .notOneOf(['00'], 'Phone number cannot start with 00'),
+
+      email: Yup.string().email("Invalid email").required("Email is required") .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Invalid email format"
+    ),
+      address: Yup.string().required("Address is required").matches(/^[A-Za-z\s]+$/, 'Only letters and spaces are allowed'),
+      password: Yup.string().required("Password is required").min(8, "Password must be at least 8 characters long")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Password must contain at least one number")
+    .matches(/[@$!%*?&#^]/, "Password must contain at least one special character"),
     }),
     onSubmit: async (values) => {
       try {
