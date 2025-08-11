@@ -1,4 +1,12 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+
+# Install Liberation fonts and fontconfig (no license prompt)
+RUN apt-get update && apt-get install -y \
+    fontconfig \
+    fonts-liberation \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 EXPOSE 80
 
