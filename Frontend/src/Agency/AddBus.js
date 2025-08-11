@@ -60,7 +60,7 @@ function AddBus() {
     validationSchema: Yup.object({
       busName: Yup.string().required("Bus name is required"),
       busNumber: Yup.string()
-        .matches(/^[A-Z0-9]{1,10}$/, "Bus number must be 1-10 alphanumeric characters")
+        .matches(/^[A-Z0-9]{10}$/, "Bus number must be 1-10 alphanumeric characters")
         .required("Bus number is required"),
       driverName: Yup.string().required("Driver name is required"),
       type: Yup.string().required("Bus type is required"),

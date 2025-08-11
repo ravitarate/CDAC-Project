@@ -88,35 +88,52 @@ const validatePhone = (phone) => {
     setPassengerInfo(updatedInfo);
   };
   const handleSubmit = () => {
-    if (passengerInfo.some((info) => !info.name || !info.email || !info.phone)) {
-      toast.error("Please fill out all passenger information!");
-      return;
+  const newErrors = [];
+
+  passengerInfo.forEach((info, index) => {
+    const error = {};
+
+    if (!info.name || !validateName(info.name)) {
+      error.name = "Name must contain only letters and be at least 2 characters";
     }
-  
-    const totalPrice = selectedSeats.length > 0 ? selectedSeats.length * selectedSeats[0].trip.price : 0;
-  
-    const bookingData = {
-      tripId,
-      busId: seats[0]?.bus.busId,
-      selectedSeats: selectedSeats.map((seat) => seat.seatNumber),
-      passengerInfo,
-      totalPrice,
-    };
-  
-    // Navigate to payment page with bookingData as state
-    navigate("/customer/payement", { state: bookingData });
-  } catch (err) {
-    if (err.inner && err.inner.length > 0) {
-      err.inner.forEach((validationError, index) => {
-        toast.error(
-          `Passenger ${index + 1}: ${validationError.message}`
-        );
-      });
-    } else {
-      toast.error("Validation failed!");
+
+    if (!info.email || !validateEmail(info.email)) {
+      error.email = "Invalid email format";
     }
+
+    if (!info.phone || !validatePhone(info.phone)) {
+      error.phone = "Phone must be 10 digits and not start with 00";
+    }
+
+    newErrors.push(error);
+  });
+
+  const hasErrors = newErrors.some((err) => Object.keys(err).length > 0);
+
+  if (hasErrors) {
+    setErrors(newErrors);
+    toast.error("Please correct the highlighted errors.");
+    return;
   }
+
+  setErrors([]); // Clear previous errors
+
+  const totalPrice =
+    selectedSeats.length > 0
+      ? selectedSeats.length * selectedSeats[0].trip.price
+      : 0;
+
+  const bookingData = {
+    tripId,
+    busId: seats[0]?.bus.busId,
+    selectedSeats: selectedSeats.map((seat) => seat.seatNumber),
+    passengerInfo,
+    totalPrice,
+  };
+
+  navigate("/customer/payement", { state: bookingData });
 };
+
 
   
 

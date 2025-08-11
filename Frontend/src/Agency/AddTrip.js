@@ -92,9 +92,11 @@ function AddTrip() {
       busId: Yup.string()
         .required("Bus is required")
         .matches(/^[0-9A-Za-z]{1,10}$/, "Invalid Bus ID format"),
-      source: Yup.string().required("Source location is required"),
+      source: Yup.string().required("Source location is required")
+        .matches(/^[A-Za-z\s]+$/, "Source must contain only letters and spaces"),
       destination: Yup.string()
         .required("Destination is required")
+        .matches(/^[A-Za-z\s]+$/, "Destination must contain only letters and spaces")
         .notOneOf(
           [Yup.ref("source")],
           "Source and destination must be different"
